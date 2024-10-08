@@ -7,8 +7,8 @@ from PIL import Image
 # Streamlit app
 st.title("Gauge Reader")
 
-# Upload image
-uploaded_file = st.file_uploader("Upload a gauge image", type=["jpg", "jpeg", "png"])
+# Upload multiple images
+uploaded_files = st.file_uploader("Upload gauge images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 # Canny and Hough Line Transform Sliders
 low_threshold = st.slider('Low threshold for Canny', 0, 255, 50)
@@ -103,16 +103,17 @@ def calibrate_gauge(image_path, min_angle=40, max_angle=320, min_value=0, max_va
         st.write("No circles found!")
         return None, img
 
-if uploaded_file is not None:
-    # Convert the uploaded file to a format OpenCV can work with
-    img = Image.open(uploaded_file)
-    img_np = np.array(img)
-    image_path = "uploaded_image.jpg"
-    cv2.imwrite(image_path, cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR))
+if uploaded_files is not None:
+    for uploaded_file in uploaded_files:
+        # Convert the uploaded file to a format OpenCV can work with
+        img = Image.open(uploaded_file)
+        img_np = np.array(img)
+        image_path = f"uploaded_image_{uploaded_file.name}"
+        cv2.imwrite(image_path, cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR))
 
-    # Calibrate the gauge and display the results
-    current_value, result_img = calibrate_gauge(image_path)
-    if current_value is not None:
-        st.image(result_img, caption=f'Gauge Reading: {current_value:.2f}', channels="BGR")
-    else:
-        st.write("Failed to process the image.")
+        # Calibrate the gauge and display the results
+        current_value, result_img = calibrate_gauge(image_path)
+        if current_value is not None:
+            st.image(result_img, caption=f'Gauge Reading: {current_value:.2f}', channels="BGR")
+        else:
+            st.write(f"Failed to process the image {uploaded_file.name}.")
