@@ -94,7 +94,7 @@ def get_current_value(img, min_angle, max_angle, min_value, max_value, x, y, r):
     return None, img
 
 # Function to calibrate the gauge with user-defined parameters
-def calibrate_gauge(image_path, min_angle, max_angle, min_value, max_value, separation):
+def calibrate_gauge(image_path, min_angle, max_angle, min_value, max_value):
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, np.array([]), 100, 50, int(img.shape[0] * 0.35), int(img.shape[0] * 0.48))
@@ -116,7 +116,6 @@ if uploaded_files is not None:
         max_angle = st.slider(f"Max angle for {uploaded_file.name}", 0, 360, 320)
         min_value = st.number_input(f"Min value for {uploaded_file.name}", value=0)
         max_value = st.number_input(f"Max value for {uploaded_file.name}", value=200)
-        separation = st.slider(f"Separation for {uploaded_file.name}", 0.0, 50.0, 10.0)
         
         # Convert the uploaded file to a format OpenCV can work with
         img = Image.open(uploaded_file)
@@ -125,7 +124,7 @@ if uploaded_files is not None:
         cv2.imwrite(image_path, cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR))
 
         # Calibrate the gauge and display the results
-        current_value, result_img = calibrate_gauge(image_path, min_angle, max_angle, min_value, max_value, separation)
+        current_value, result_img = calibrate_gauge(image_path, min_angle, max_angle, min_value, max_value)
 
         if current_value is not None:
             # Resize the result image to a fixed size
