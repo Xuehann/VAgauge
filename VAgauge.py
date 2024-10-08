@@ -11,10 +11,14 @@ st.title("Gauge Reader")
 uploaded_files = st.file_uploader("Upload gauge images", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 # Canny and Hough Line Transform Sliders
-low_threshold = st.slider('Low threshold for Canny', 0, 255, 50)
+low_threshold = st.slider('Low threshold for Canny', 0, 255, 128)
 high_threshold = st.slider('High threshold for Canny', 0, 255, 150)
 min_line_length = st.slider('Min Line Length for Hough Lines', 10, 100, 50)
 max_line_gap = st.slider('Max Line Gap for Hough Lines', 1, 50, 10)
+
+# Define the desired output size for the images
+output_width = 500
+output_height = 500
 
 # Function to calculate average circles
 def avg_circles(circles, b):
@@ -113,7 +117,12 @@ if uploaded_files is not None:
 
         # Calibrate the gauge and display the results
         current_value, result_img = calibrate_gauge(image_path)
+
         if current_value is not None:
-            st.image(result_img, caption=f'Gauge Reading: {current_value:.2f}', channels="BGR")
+            # Resize the result image to a fixed size
+            resized_img = cv2.resize(result_img, (output_width, output_height))
+
+            # Display the resized image
+            st.image(resized_img, caption=f'Gauge Reading: {current_value:.2f}', channels="BGR")
         else:
             st.write(f"Failed to process the image {uploaded_file.name}.")
